@@ -20,7 +20,7 @@ export default function Home() {
             </code>
             .
           </li>
-          <li>Don't Save your changes instantly.</li>
+          <li>Do not Save your changes instantly.</li>
         </ol>
 
         <div className="flex gap-4 items-center flex-col sm:flex-row">
