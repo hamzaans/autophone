@@ -11,7 +11,7 @@ export async function POST(request: Request) {
     const { phone, name, date, time } = await request.json();
     
     const message = await client.messages.create({
-      body: `Hello ${name}, you have an appointment on ${date} at ${time}`,
+      body: `Hi ${name}, this is a reminder of your appointment with Dr. Ansari on ${date} at ${time} at The Waldorf Medical Clinic. If you need to reschedule, please call our office during business hours.`,
       to: phone,
       from: process.env.TWILIO_PHONE_NUMBER,
     });
