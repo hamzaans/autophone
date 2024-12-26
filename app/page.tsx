@@ -17,6 +17,7 @@ export default function Home() {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [hasSubmitted, setHasSubmitted] = useState(false);
+  const [progress, setProgress] = useState({ current: 0, total: 0 });
 
   useEffect(() => {
     // Check if we have the auth cookie by making a request to the API
@@ -79,15 +80,56 @@ export default function Home() {
       });
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (appointments.length > 0 && !hasSubmitted) {
       setIsSubmitting(true);
-      // Simulate API call with setTimeout
-      setTimeout(() => {
-        alert('File submitted successfully!');
-        setIsSubmitting(false);
+      
+      try {
+        // Calculate total messages to send
+        const totalMessages = appointments.reduce((sum, apt) => 
+          sum + (apt.phone1 ? 1 : 0) + (apt.phone2 ? 1 : 0), 0);
+        setProgress({ current: 0, total: totalMessages });
+
+        // Send SMS for each appointment
+        for (const apt of appointments) {
+          if (apt.phone1) {
+            await fetch('/api/send-sms', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                phone: apt.phone1,
+                name: apt.name,
+                date: apt.date,
+                time: apt.time
+              }),
+            });
+            setProgress(prev => ({ ...prev, current: prev.current + 1 }));
+          }
+
+          if (apt.phone2) {
+            await fetch('/api/send-sms', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                phone: apt.phone2,
+                name: apt.name,
+                date: apt.date,
+                time: apt.time
+              }),
+            });
+            setProgress(prev => ({ ...prev, current: prev.current + 1 }));
+          }
+        }
+        
+        alert('Messages sent successfully!');
         setHasSubmitted(true);
-      }, 1000);
+      } catch (error) {
+        console.error('Failed to send messages:', error);
+        alert('Failed to send some messages');
+      } finally {
+        setIsSubmitting(false);
+        setProgress({ current: 0, total: 0 });
+      }
     } else if (hasSubmitted) {
       alert('File has already been submitted');
     } else {
@@ -147,7 +189,12 @@ export default function Home() {
               </table>
             </div>
             
-            <div className="mt-6 flex justify-end">
+            <div className="mt-6 flex flex-col items-end gap-2">
+              {isSubmitting && (
+                <div className="text-gray-300 text-sm">
+                  Sending messages: {progress.current}/{progress.total}
+                </div>
+              )}
               <button
                 onClick={handleSubmit}
                 disabled={isSubmitting || hasSubmitted}
@@ -161,7 +208,7 @@ export default function Home() {
                   text-white`}
               >
                 {isSubmitting 
-                  ? 'Submitting...' 
+                  ? `Sending... ${Math.round((progress.current / progress.total) * 100)}%`
                   : hasSubmitted 
                     ? 'Submitted' 
                     : 'Submit'}
