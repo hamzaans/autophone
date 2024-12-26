@@ -1,7 +1,9 @@
 import { NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
 
-export async function GET(request: Request) {
-  const isAuthenticated = request.cookies.get('auth')?.value === 'true';
+export async function GET() {
+  const cookieStore = await cookies();
+  const isAuthenticated = cookieStore.get('auth')?.value === 'true';
 
   if (!isAuthenticated) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

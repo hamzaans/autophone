@@ -23,7 +23,8 @@ export default function Login() {
       } else {
         setError('Invalid credentials');
       }
-    } catch (err) {
+    } catch (error: unknown) {
+      console.error('Login error:', error);
       setError('Login failed');
     }
   };
