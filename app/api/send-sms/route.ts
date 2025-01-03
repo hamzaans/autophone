@@ -16,7 +16,7 @@ export async function POST(request: Request) {
       .trim()         // Remove whitespace
       .split(' ')[0]  // Get first word (first name)
       .toLowerCase()  // Convert to lowercase
-      .replace(/^\w/, c => c.toUpperCase());  // Capitalize first letter
+      .replace(/^\w/, (c: string) => c.toUpperCase());  // Capitalize first letter
     
     const message = await client.messages.create({
       body: `Hi ${firstName}, this is a reminder of your appointment with Dr. Ansari on ${date} at ${time} at The Waldorf Medical Clinic. If you need to reschedule, please call our office during business hours.`,
