@@ -10,8 +10,16 @@ export async function POST(request: Request) {
   try {
     const { phone, name, date, time } = await request.json();
     
+    // Extract and capitalize first name
+    const firstName = name
+      .split(',')[1]  // Get everything after the comma
+      .trim()         // Remove whitespace
+      .split(' ')[0]  // Get first word (first name)
+      .toLowerCase()  // Convert to lowercase
+      .replace(/^\w/, c => c.toUpperCase());  // Capitalize first letter
+    
     const message = await client.messages.create({
-      body: `Hi ${name}, this is a reminder of your appointment with Dr. Ansari on ${date} at ${time} at The Waldorf Medical Clinic. If you need to reschedule, please call our office during business hours.`,
+      body: `Hi ${firstName}, this is a reminder of your appointment with Dr. Ansari on ${date} at ${time} at The Waldorf Medical Clinic. If you need to reschedule, please call our office during business hours.`,
       to: phone,
       from: process.env.TWILIO_PHONE_NUMBER,
     });
